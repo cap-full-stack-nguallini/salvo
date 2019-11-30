@@ -40,10 +40,10 @@ public class AppController {
       return new  ResponseEntity<>(Util.makeMap("error","Paso algo"),HttpStatus.UNAUTHORIZED);
     }
 
-    Player  player  = playerRepository.findByEmail(authentication.getName()).orElse(null);
+    Player  playerLogued  = playerRepository.findByEmail(authentication.getName()).orElse(null);
     GamePlayer gamePlayer = gamePlayerRepository.findById(nn).orElse(null);
 
-    if(player ==  null){
+    if(playerLogued ==  null){
       return new  ResponseEntity<>(Util.makeMap("error","Paso algo"),HttpStatus.UNAUTHORIZED);
     }
 
@@ -51,7 +51,7 @@ public class AppController {
       return new  ResponseEntity<>(Util.makeMap("error","Paso algo"),HttpStatus.UNAUTHORIZED);
     }
 
-    if(gamePlayer.getPlayer().getId() !=  player.getId()){
+    if(gamePlayer.getPlayer().getId() !=  playerLogued.getId()){
       return new  ResponseEntity<>(Util.makeMap("error","Paso algo"),HttpStatus.CONFLICT);
     }
 
@@ -63,7 +63,7 @@ public class AppController {
 
 	    dto.put("id", gamePlayer.getGame().getId());
       dto.put("created",  gamePlayer.getGame().getCreated());
-	    dto.put("gameState", "PLACESHIPS");
+	    dto.put("gameState", getGameState(gamePlayer));
 
 	    dto.put("gamePlayers", gamePlayer.getGame().getGamePlayers()
                                                   .stream()
@@ -86,7 +86,7 @@ public class AppController {
   }
 
   @RequestMapping(path = "/game/{gameID}/players", method = RequestMethod.POST)
-  public ResponseEntity<Map<String, Object>> joinGame(@PathVariable Long gameID, Authentication authentication) {
+  public ResponseEntity<Map<String, Object>> joinGame(@PathVariable long gameID, Authentication authentication) {
     if (Util.isGuest(authentication)){
       return new ResponseEntity<>(Util.makeMap("error", "You can't join a Game if You're Not Logged In!"), HttpStatus.UNAUTHORIZED);
     }
@@ -198,6 +198,45 @@ public class AppController {
     return hits;
   }
 
+  private GameState getGameState (GamePlayer gamePlayer) {
+
+    if (gamePlayer.getShips().size() == 0) {
+      return GameState.PLACESHIPS;
+    }
+    if (gamePlayer.getGame().getGamePlayers().size() == 1){
+      return GameState.WAITINGFOROPP;
+    }
+    if (gamePlayer.getGame().getGamePlayers().size() == 2) {
+
+      GamePlayer opponentGp = gamePlayer.getOpponent();
+
+      if ((gamePlayer.getSalvoes().size() == opponentGp.getSalvoes().size()) && (getIfAllSunk(opponentGp, gamePlayer)) && (!getIfAllSunk(gamePlayer, opponentGp))) {
+        return GameState.WON;
+      }
+      if ((gamePlayer.getSalvoes().size() == opponentGp.getSalvoes().size()) && (getIfAllSunk(opponentGp, gamePlayer)) && (getIfAllSunk(gamePlayer, opponentGp))) {
+        return GameState.TIE;
+      }
+      if ((gamePlayer.getSalvoes().size() == opponentGp.getSalvoes().size()) && (!getIfAllSunk(opponentGp, gamePlayer)) && (getIfAllSunk(gamePlayer, opponentGp))) {
+        return GameState.LOST;
+      }
+
+      if ((gamePlayer.getSalvoes().size() == opponentGp.getSalvoes().size()) && (gamePlayer.getId() < opponentGp.getId())) {
+        return GameState.PLAY;
+      }
+      if (gamePlayer.getSalvoes().size() < opponentGp.getSalvoes().size()){
+        return GameState.PLAY;
+      }
+      if ((gamePlayer.getSalvoes().size() == opponentGp.getSalvoes().size()) && (gamePlayer.getId() > opponentGp.getId())) {
+        return GameState.WAIT;
+      }
+      if (gamePlayer.getSalvoes().size() > opponentGp.getSalvoes().size()){
+        return GameState.WAIT;
+      }
+
+    }
+    return GameState.UNDEFINED;
+  }
+
   private List<String>  getLocatiosByType(String type, GamePlayer self){
     return  self.getShips().size()  ==  0 ? new ArrayList<>() : self.getShips().stream().filter(ship -> ship.getType().equals(type)).findFirst().get().getShipLocations();
   }
@@ -210,6 +249,13 @@ public class AppController {
 	  }
 			return false;
   }
+
+  public Map makeMap(String key, Object  value){
+    Map<String, Object> map = new HashMap<>();
+    map.put(key, value);
+    return map;
+  }
+
 
 
 }

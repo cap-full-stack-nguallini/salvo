@@ -71,7 +71,7 @@ public class GameController {
 
     GamePlayer  gamePlayer  = gamePlayerRepository.save(new GamePlayer(game,player));
 
-	    return new ResponseEntity<>(makeMap("gpid",gamePlayer.getId()),HttpStatus.CREATED);
+    return new ResponseEntity<>(makeMap("gpid",gamePlayer.getId()),HttpStatus.CREATED);
   }
 
   private boolean isGuest(Authentication authentication) {
