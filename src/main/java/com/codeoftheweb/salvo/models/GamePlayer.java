@@ -7,6 +7,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -22,10 +23,13 @@ public  class   GamePlayer{
     @ManyToOne(fetch  = FetchType.EAGER)
     @JoinColumn(name="gameID")
     private Game  game;
-
+    
     @ManyToOne(fetch  = FetchType.EAGER)
     @JoinColumn(name="playerID")
     private Player  player;
+
+    @OneToMany(mappedBy = "gamePlayer",fetch = FetchType.EAGER)
+    private List<Ship> ships;
 
     public  GamePlayer(){
       this.joinDate = new Date();
@@ -72,13 +76,11 @@ public  class   GamePlayer{
       return  this.player;
     }
 
-    public  Map<String,Object>  dto(){
-        Map<String,Object> dto =   new LinkedHashMap<>();
-        dto.put("id",   this.id);
-        dto.put("joinDate",   this.joinDate);
-        dto.put("player",  this.getPlayer().makePlayerDTO());
-        return  dto;
+    public List<Ship> getShips() {
+        return ships;
     }
 
-
+    public void setShips(List<Ship> ships) {
+        this.ships = ships;
+    }
 }
