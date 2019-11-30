@@ -29,16 +29,21 @@ public  class   GamePlayer{
     private Set<Ship> ships;
 
     @OneToMany(mappedBy = "gamePlayer",fetch = FetchType.EAGER)
-    private Set<Salvo> salvoes;
+    private List<Salvo> salvoes;
 
     public  GamePlayer(){
-      this.joinDate = new Date();
+
+    	this.joinDate = new Date();
+    	this.ships  = new HashSet<>();
+      this.salvoes  = new ArrayList<>();
     }
 
     public  GamePlayer(Game game, Player player){
     this.joinDate = new  Date();
     this.game = game;
     this.player = player;
+    this.ships  = new HashSet<>();
+    this.salvoes  = new ArrayList<>();
   }
 
   public Map<String,  Object> makeGamePlayerDTO(){
@@ -46,6 +51,13 @@ public  class   GamePlayer{
     dto.put("id", this.getId());
     dto.put("player", this.getPlayer().makePlayerDTO());
     return  dto;
+  }
+
+  public GamePlayer getOpponent(){
+    	return  this.getGame().getGamePlayers().stream()
+					    .filter(gamePlayer -> gamePlayer.getId()  !=  this.getId())
+					    .findFirst()
+					    .orElse(new GamePlayer());
   }
 
   public Optional<Score>  getScore(){
@@ -88,11 +100,11 @@ public  class   GamePlayer{
         this.ships = ships;
     }
 
-    public Set<Salvo> getSalvoes() {
-        return salvoes;
-    }
+	public List<Salvo> getSalvoes() {
+		return salvoes;
+	}
 
-    public void setSalvoes(Set<Salvo> salvoes) {
-        this.salvoes = salvoes;
-    }
+	public void setSalvoes(List<Salvo> salvoes) {
+		this.salvoes = salvoes;
+	}
 }

@@ -57,7 +57,6 @@ $('#login-form').on('submit', function (event) {
                         $("#username").val("");
                         $("#password").val("");
                         updateJson();
-                        $("#createGameForm").show();
 
                     })
                     .fail(function() {

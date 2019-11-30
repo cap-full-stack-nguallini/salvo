@@ -419,6 +419,7 @@ function makeGameRecordTable (hitsArray, gameRecordTableId) {
         playerTag = "#";
     }
 
+
     hitsArray.forEach(function (playTurn) {
         let hitsReport = "";
         if (playTurn.damages.carrierHits > 0){
