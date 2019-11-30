@@ -63,7 +63,7 @@ public class AppController {
 
 	    dto.put("id", gamePlayer.getGame().getId());
       dto.put("created",  gamePlayer.getGame().getCreated());
-	    dto.put("gameState", getState(gamePlayer, gamePlayer.getOpponent()));
+	    dto.put("gameState", "PLACESHIPS");
 
 	    dto.put("gamePlayers", gamePlayer.getGame().getGamePlayers()
                                                   .stream()
@@ -110,27 +110,6 @@ public class AppController {
     } else {
       return new ResponseEntity<>(Util.makeMap("error", "Game is full!"), HttpStatus.FORBIDDEN);
     }
-  }
-
-  public String getState(GamePlayer gamePlayerSelf, GamePlayer  gamePlayerOpponent){
-
-    if(gamePlayerSelf.getShips().isEmpty()){
-      return "PLACESHIPS";
-    }
-
-    if(gamePlayerSelf.getGame().getGamePlayers().size() == 1){
-      return "WAITINGFOROPP";
-    }
-
-    if(gamePlayerSelf.getId() < gamePlayerOpponent.getId()){
-      return "PLAY";
-    }
-
-    if(gamePlayerSelf.getId() > gamePlayerOpponent.getId()){
-      return "WAIT";
-    }
-
-    return "LOST";
   }
 
 }
