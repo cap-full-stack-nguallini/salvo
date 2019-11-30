@@ -13,36 +13,43 @@ public class Game {
     @GenericGenerator(name = "native",  strategy = "native")
     private long id;
 
-    private Date creationDate;
+    private Date created;
 
     @OneToMany(mappedBy = "game",fetch = FetchType.EAGER)
     Set<GamePlayer> gamePlayers;
 
+    @OneToMany(mappedBy = "game",fetch = FetchType.EAGER)
+    Set<Score> scores;
+
     public Map<String,  Object> makeGameDTO(){
         Map<String,  Object>    dto=    new LinkedHashMap<>();
         dto.put("id",   this.getId());
-        dto.put("creationDate", this.getCreationDate());
+        dto.put("created", this.getCreated());
         dto.put("gamePlayers",  this.getGamePlayers()
                                     .stream()
                                     .map(gamePlayer -> gamePlayer.makeGamePlayerDTO())
                                     .collect(Collectors.toList()));
+        dto.put("scores",   this.getGamePlayers().stream()
+                                                .map(gamePlayer -> {if(gamePlayer.getScore().isPresent())   return gamePlayer.getScore().get().makeScoreDTO();
+                                                                    else   return null;})
+                                                .collect(Collectors.toList()));
         return  dto;
     }
 
     public Game(){
-        this.creationDate   =   new Date();
+        this.created   =   new Date();
     }
 
     public long getId() {
         return id;
     }
 
-    public Date getCreationDate() {
-        return creationDate;
+    public Date getCreated() {
+        return created;
     }
 
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
+    public void setCreated(Date created) {
+        this.created = created;
     }
 
     public Set<GamePlayer> getGamePlayers() {
@@ -51,5 +58,13 @@ public class Game {
 
     public void setGamePlayers(Set<GamePlayer> gamePlayers) {
         this.gamePlayers = gamePlayers;
+    }
+
+    public Set<Score> getScores() {
+        return scores;
+    }
+
+    public void setScores(Set<Score> scores) {
+        this.scores = scores;
     }
 }

@@ -3,6 +3,7 @@ package com.codeoftheweb.salvo.controllers;
 import com.codeoftheweb.salvo.models.GamePlayer;
 import com.codeoftheweb.salvo.repositories.GamePlayerRepository;
 import com.codeoftheweb.salvo.repositories.GameRepository;
+import com.codeoftheweb.salvo.repositories.PlayereRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,12 +24,17 @@ public class SalvoController {
   @Autowired
   private GamePlayerRepository  gamePlayerRepository;
 
+  @Autowired
+  private PlayereRepository playerRepository;
+
   @RequestMapping("/games")
-  public List<Map<String,Object>> getGameAll(){
-    return gameRepository.findAll()
-            .stream()
-            .map(game -> game.makeGameDTO())
-            .collect(Collectors.toList());
+  public Map<String,Object> getGameAll(){
+    Map<String,  Object>  dto = new LinkedHashMap<>();
+    dto.put("games", gameRepository.findAll()
+                                  .stream()
+                                  .map(game -> game.makeGameDTO())
+                                  .collect(Collectors.toList()));
+    return dto;
   }
 
   @RequestMapping("/game_view/{nn}")
@@ -37,7 +43,7 @@ public class SalvoController {
 
     Map<String,  Object>  dto = new LinkedHashMap<>();
       dto.put("id", gamePlayer.getGame().getId());
-      dto.put("created",  gamePlayer.getGame().getCreationDate());
+      dto.put("created",  gamePlayer.getGame().getCreated());
       dto.put("gamePlayers", gamePlayer.getGame().getGamePlayers()
                                                   .stream()
                                                   .map(gamePlayer1 -> gamePlayer1.makeGamePlayerDTO())
@@ -54,5 +60,16 @@ public class SalvoController {
                                               .collect(Collectors.toList()));
 
     return  dto;
+  }
+
+  @RequestMapping("/leaderBoard")
+  public  List<Map<String,Object>> leaderBoard(){
+
+    return  playerRepository.findAll()
+                            .stream()
+                            .map(player  ->  player.makePlayerScoreDTO())
+                            .collect(Collectors.toList());
+
+
   }
 }

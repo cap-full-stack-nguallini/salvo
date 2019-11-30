@@ -16,6 +16,7 @@ public class SalvoApplication {
 
   public static void main(String[] args) {
     SpringApplication.run(SalvoApplication.class, args);
+    System.out.println("Todo esta bajo contro!! Rocket");
   }
 
   @Bean
@@ -23,7 +24,8 @@ public class SalvoApplication {
                                     GameRepository gameRepository,
                                     GamePlayerRepository  gamePlayerRepository,
                                     ShipRepository  shipRepository,
-                                    SalvoRepository salvoRepository) {
+                                    SalvoRepository salvoRepository,
+                                    ScoreRepository scoreRepository) {
     return (args) -> {
 
       Player playe1  = new Player("david@gmail.com");
@@ -34,9 +36,9 @@ public class SalvoApplication {
 
       Game game1 = new Game();
       Game game2 = new Game();
-      game2.setCreationDate(Date.from(game1.getCreationDate().toInstant().plusSeconds(3600)));
+      game2.setCreated(Date.from(game1.getCreated().toInstant().plusSeconds(3600)));
       Game game3 = new Game();
-      game3.setCreationDate(Date.from(game1.getCreationDate().toInstant().plusSeconds(7200)));
+      game3.setCreated(Date.from(game1.getCreated().toInstant().plusSeconds(7200)));
 
       gameRepository.save(game1);
       gameRepository.save(game2);
@@ -44,9 +46,13 @@ public class SalvoApplication {
 
       GamePlayer  gamePlayer1 = new GamePlayer(game1,playe1);
       GamePlayer  gamePlayer2 = new GamePlayer(game1,playe2);
+      GamePlayer  gamePlayer3 = new GamePlayer(game2,playe2);
+      GamePlayer  gamePlayer4 = new GamePlayer(game2,playe1);
 
       gamePlayerRepository.save(gamePlayer1);
       gamePlayerRepository.save(gamePlayer2);
+      gamePlayerRepository.save(gamePlayer3);
+      gamePlayerRepository.save(gamePlayer4);
 
       String battleship = "Battleship";
       String submarine = "Submarine";
@@ -69,6 +75,12 @@ public class SalvoApplication {
 
       salvoRepository.save(salvo1);
       salvoRepository.save(salvo2);
+
+      Score score1 = new Score(playe1,game1,1.0D,new Date());
+      Score score2 = new Score(playe2,game1,0.0D,new Date());
+
+      scoreRepository.save(score1);
+      scoreRepository.save(score2);
 
     };
   }

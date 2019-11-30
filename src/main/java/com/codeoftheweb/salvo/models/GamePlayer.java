@@ -48,6 +48,10 @@ public  class   GamePlayer{
     return  dto;
   }
 
+  public Optional<Score>  getScore(){
+      return  this.getPlayer().getScore(this.getGame());
+  }
+
   public long getId() {
     return id;
   }
