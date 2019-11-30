@@ -5,10 +5,7 @@ import javax.persistence.*;
 
 import org.hibernate.annotations.GenericGenerator;
 
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Entity
 public  class   GamePlayer{
@@ -29,7 +26,10 @@ public  class   GamePlayer{
     private Player  player;
 
     @OneToMany(mappedBy = "gamePlayer",fetch = FetchType.EAGER)
-    private List<Ship> ships;
+    private Set<Ship> ships;
+
+    @OneToMany(mappedBy = "gamePlayer",fetch = FetchType.EAGER)
+    private Set<Salvo> salvoes;
 
     public  GamePlayer(){
       this.joinDate = new Date();
@@ -76,11 +76,19 @@ public  class   GamePlayer{
       return  this.player;
     }
 
-    public List<Ship> getShips() {
+    public Set<Ship> getShips() {
         return ships;
     }
 
-    public void setShips(List<Ship> ships) {
+    public void setShips(Set<Ship> ships) {
         this.ships = ships;
+    }
+
+    public Set<Salvo> getSalvoes() {
+        return salvoes;
+    }
+
+    public void setSalvoes(Set<Salvo> salvoes) {
+        this.salvoes = salvoes;
     }
 }
