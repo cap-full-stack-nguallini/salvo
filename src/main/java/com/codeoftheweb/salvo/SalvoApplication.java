@@ -73,7 +73,7 @@ public class SalvoApplication {
       GamePlayer  gamePlayer4 = new GamePlayer(game2,playe1);
 
       gamePlayerRepository.save(gamePlayer1);
-      gamePlayerRepository.save(gamePlayer2);
+      //gamePlayerRepository.save(gamePlayer2);
       gamePlayerRepository.save(gamePlayer3);
       gamePlayerRepository.save(gamePlayer4);
 
@@ -90,14 +90,14 @@ public class SalvoApplication {
       shipRepository.save(ship1);
       shipRepository.save(ship2);
       shipRepository.save(ship3);
-      shipRepository.save(ship4);
-      shipRepository.save(ship5);
+      //shipRepository.save(ship4);
+      //shipRepository.save(ship5);
 
       Salvo salvo1 = new Salvo(1,Arrays.asList("H2", "H3", "H4"),gamePlayer1);
       Salvo salvo2 = new Salvo(1,Arrays.asList("E1", "F1", "G1"),gamePlayer2);
 
       salvoRepository.save(salvo1);
-      salvoRepository.save(salvo2);
+      //salvoRepository.save(salvo2);
 
       Score score1 = new Score(playe1,game1,1.0D,new Date());
       Score score2 = new Score(playe2,game1,0.0D,new Date());
@@ -150,6 +150,7 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     // turn off checking for CSRF tokens
     http.csrf().disable();
+    http.headers().frameOptions().disable();
 
     // if user is not authenticated, just send an authentication failure response
     http.exceptionHandling().authenticationEntryPoint((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
