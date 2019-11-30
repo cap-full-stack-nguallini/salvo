@@ -58,8 +58,8 @@ public class AppController {
 	  Map<String,  Object>  dto = new LinkedHashMap<>();
 	  Map<String, Object> hits = new LinkedHashMap<>();
 
-	    hits.put("self", new ArrayList<>());
-		  hits.put("opponent", new ArrayList<>());
+	    hits.put("self", gethits(gamePlayer, gamePlayer.getOpponent()));
+		  hits.put("opponent", gethits(gamePlayer.getOpponent(),  gamePlayer));
 
 	    dto.put("id", gamePlayer.getGame().getId());
       dto.put("created",  gamePlayer.getGame().getCreated());
@@ -111,5 +111,105 @@ public class AppController {
       return new ResponseEntity<>(Util.makeMap("error", "Game is full!"), HttpStatus.FORBIDDEN);
     }
   }
+
+  private List<Map> gethits(GamePlayer  self, GamePlayer  opponent){
+
+    List<Map> hits  = new ArrayList<>();
+
+    Integer carrierDamage = 0;
+    Integer battleshipDamage = 0;
+    Integer submarineDamage = 0;
+    Integer destroyerDamage = 0;
+    Integer patrolboatDamage = 0;
+
+    List <String> carrierLocation = getLocatiosByType("carrier",self);
+    List <String> battleshipLocation = getLocatiosByType("battleship",self);
+    List <String> submarineLocation = getLocatiosByType("submarine",self);
+    List <String> destroyerLocation = getLocatiosByType("destroyer",self);
+    List <String> patrolboatLocation = getLocatiosByType("patrolboat",self);
+
+    for (Salvo  salvo : opponent.getSalvoes()){
+
+      long carrierHitsInTurn = 0;
+      long battleshipHitsInTurn = 0;
+      long submarineHitsInTurn = 0;
+      long destroyerHitsInTurn = 0;
+      long patrolboatHitsInTurn = 0;
+      long missedShots = salvo.getSalvoLocations().size();
+
+      Map<String, Object> hitsMapPerTurn = new LinkedHashMap<>();
+      Map<String, Object> damagesPerTurn = new LinkedHashMap<>();
+
+      List<String> salvoLocationsList = new ArrayList<>();
+      List<String> hitCellsList = new ArrayList<>();
+
+      for (String salvoShot : salvo.getSalvoLocations()) {
+        if (carrierLocation.contains(salvoShot)) {
+          carrierDamage++;
+          carrierHitsInTurn++;
+          hitCellsList.add(salvoShot);
+          missedShots--;
+        }
+        if (battleshipLocation.contains(salvoShot)) {
+          battleshipDamage++;
+          battleshipHitsInTurn++;
+          hitCellsList.add(salvoShot);
+          missedShots--;
+        }
+        if (submarineLocation.contains(salvoShot)) {
+          submarineDamage++;
+          submarineHitsInTurn++;
+          hitCellsList.add(salvoShot);
+          missedShots--;
+        }
+        if (destroyerLocation.contains(salvoShot)) {
+          destroyerDamage++;
+          destroyerHitsInTurn++;
+          hitCellsList.add(salvoShot);
+          missedShots--;
+        }
+        if (patrolboatLocation.contains(salvoShot)) {
+          patrolboatDamage++;
+          patrolboatHitsInTurn++;
+          hitCellsList.add(salvoShot);
+          missedShots--;
+        }
+      }
+
+      damagesPerTurn.put("carrierHits", carrierHitsInTurn);
+      damagesPerTurn.put("battleshipHits", battleshipHitsInTurn);
+      damagesPerTurn.put("submarineHits", submarineHitsInTurn);
+      damagesPerTurn.put("destroyerHits", destroyerHitsInTurn);
+      damagesPerTurn.put("patrolboatHits", patrolboatHitsInTurn);
+      damagesPerTurn.put("carrier", carrierDamage);
+      damagesPerTurn.put("battleship", battleshipDamage);
+      damagesPerTurn.put("submarine", submarineDamage);
+      damagesPerTurn.put("destroyer", destroyerDamage);
+      damagesPerTurn.put("patrolboat", patrolboatDamage);
+
+      hitsMapPerTurn.put("turn", salvo.getTurn());
+      hitsMapPerTurn.put("hitLocations", hitCellsList);
+      hitsMapPerTurn.put("damages", damagesPerTurn);
+      hitsMapPerTurn.put("missed", missedShots);
+      hits.add(hitsMapPerTurn);
+
+    };
+
+    return hits;
+  }
+
+  private List<String>  getLocatiosByType(String type, GamePlayer self){
+    return  self.getShips().size()  ==  0 ? new ArrayList<>() : self.getShips().stream().filter(ship -> ship.getType().equals(type)).findFirst().get().getShipLocations();
+  }
+
+  private Boolean getIfAllSunk (GamePlayer self, GamePlayer opponent) {
+
+  	if(!opponent.getShips().isEmpty() && !self.getSalvoes().isEmpty()){
+		  return opponent.getSalvoes().stream().flatMap(salvo -> salvo.getSalvoLocations().stream()).collect(Collectors.toList()).containsAll(self.getShips().stream()
+						                                .flatMap(ship -> ship.getShipLocations().stream()).collect(Collectors.toList()));
+	  }
+			return false;
+  }
+
 
 }
